@@ -20,6 +20,7 @@ Update later with `/plugin marketplace update edusouza-plugins`.
 | [**issue-ops**](plugins/issue-ops) | Turn inputs into structured GitHub issues: `bug-rca` (code + observability root-cause analysis, diagnosis only) and `spec-to-issues` (spec/PRD folder → Epic→Spec→Task hierarchy). |
 | [**context-docs**](plugins/context-docs) | Generate modular context-engineering docs under `docs/context/` that AI agents lazy-load on demand — architecture, standards, patterns, decisions — for any project. |
 | [**design-to-ui**](plugins/design-to-ui) | Turn a design into UI components via atomic design. Source-agnostic (Stitch, Claude Design handoff/HTML, image) and framework-agnostic (React, Vue, Svelte, Angular, Solid). |
+| [**llm-wiki**](plugins/llm-wiki) | Karpathy's LLM-Wiki pattern: `bootstrap` a `sources/`/`inbox/`/`wiki/` knowledge base, `ingest` curated sources into cross-linked pages, `process-inbox` to triage fleeting captures, `query` it, and `lint` it for drift. |
 
 Install any of them with `/plugin install <name>@edusouza-plugins` (e.g. `/plugin install delivery-workflow@edusouza-plugins`).
 

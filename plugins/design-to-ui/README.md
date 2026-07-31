@@ -18,7 +18,7 @@ components — along with the styling system (Tailwind / CSS Modules / styled-co
 
 ## Install
 ```bash
-/plugin install design-to-ui@claude-plugins
+/plugin install design-to-ui@edusouza-plugins
 ```
 
 ## Dependencies

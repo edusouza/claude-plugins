@@ -12,7 +12,7 @@ A feature-delivery suite that drives code from a GitHub issue to a green PR. Fou
 
 ## Install
 ```bash
-/plugin install delivery-workflow@claude-plugins
+/plugin install delivery-workflow@edusouza-plugins
 ```
 
 ## ⚠️ This plugin installs a Stop hook
