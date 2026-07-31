@@ -1,0 +1,7 @@
+{
+  "name": "llm-wiki",
+  "description": "Karpathy's LLM-Wiki pattern: bootstrap scaffolds sources/, inbox/, and wiki/ with a schema CLAUDE.md; ingest turns curated sources into cross-linked wiki pages; process-inbox triages the fleeting-capture backlog into the same wiki; query answers questions from the wiki and files good answers back; lint audits the wiki for structural drift and suggests what to research next.",
+  "version": "0.1.0",
+  "author": { "name": "Eduardo Souza" },
+  "license": "MIT"
+}

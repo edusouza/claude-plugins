@@ -8,7 +8,7 @@
       "name": "claude-memory",
       "source": "./plugins/claude-memory",
       "description": "Three-tier cross-session memory for Claude Code: per-session captures consolidate weekly into durable abstractions, auto-injected at session start. Per-project, opt-in, local-only.",
-      "version": "0.3.2",
+      "version": "0.3.3",
       "author": { "name": "Eduardo Souza" }
     },
     {
@@ -36,6 +36,13 @@
       "name": "design-to-ui",
       "source": "./plugins/design-to-ui",
       "description": "Turn a design into UI components using atomic design. Source-agnostic (Stitch, Claude Design handoff/HTML, or an image) and framework-agnostic (React, Vue, Svelte, Angular, Solid).",
+      "version": "0.1.0",
+      "author": { "name": "Eduardo Souza" }
+    },
+    {
+      "name": "llm-wiki",
+      "source": "./plugins/llm-wiki",
+      "description": "Karpathy's LLM-Wiki pattern: bootstrap scaffolds sources/, inbox/, and wiki/ with a schema CLAUDE.md; ingest turns curated sources into cross-linked wiki pages; process-inbox triages the fleeting-capture backlog into the same wiki; query answers questions from the wiki and files good answers back; lint audits the wiki for structural drift and suggests what to research next.",
       "version": "0.1.0",
       "author": { "name": "Eduardo Souza" }
     }
