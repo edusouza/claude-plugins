@@ -12,7 +12,7 @@ and the project's component structure.
 
 ## Install
 ```bash
-/plugin install context-docs@claude-plugins
+/plugin install context-docs@edusouza-plugins
 ```
 
 ## Dependencies

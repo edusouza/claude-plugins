@@ -9,7 +9,7 @@ Turn inputs into well-structured GitHub issues. Two skills:
 
 ## Install
 ```bash
-/plugin install issue-ops@claude-plugins
+/plugin install issue-ops@edusouza-plugins
 ```
 
 ## Dependencies
