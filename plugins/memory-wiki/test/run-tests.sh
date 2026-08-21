@@ -29,4 +29,19 @@ else
   fail "version parity" "plugin.json=$PV  marketplace.json=$MV"
 fi
 
+# --- golden-file fixtures ---
+run_fixture() {
+  local name="$1"; shift
+  local out exp
+  exp="$HERE/expected/$name.txt"
+  out="$(bash "$PLUGIN/bin/wiki-lint.sh" "$HERE/fixtures/$name/wiki" "$@" 2>&1)"
+  if [[ "$out" == "$(cat "$exp" 2>/dev/null)" ]]; then
+    pass "fixture: $name"
+  else
+    fail "fixture: $name" "$(diff <(cat "$exp" 2>/dev/null) <(echo "$out") || true)"
+  fi
+}
+
+run_fixture clean
+
 exit "$FAILED"
