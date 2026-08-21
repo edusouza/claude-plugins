@@ -21,10 +21,14 @@ fi
 
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
-# index.md and log.md link to nearly every page by design. Counting their links as
+# Index and log files link to nearly every page by design. Counting their links as
 # inbound edges would hide every orphan, so they are excluded from the page set and
 # from inbound-edge accounting (their links still count toward the total).
-is_structural() { [[ "$1" == "index" || "$1" == "log" ]]; }
+#
+# MEMORY.md is included because a pre-wiki memory dir has no index.md — MEMORY.md IS
+# the index there, and linting <memdir> directly is the Phase 1 entry point. Omitting
+# it reports the index as an orphan with no frontmatter, which is noise, not a finding.
+is_structural() { [[ "$1" == "index" || "$1" == "log" || "$1" == "MEMORY" ]]; }
 
 # --- collect page names and per-page link lists ---
 : > "$TMP/pages"; : > "$TMP/links"; : > "$TMP/inbound"; : > "$TMP/nofm"

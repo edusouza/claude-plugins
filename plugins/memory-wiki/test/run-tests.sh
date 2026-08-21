@@ -48,4 +48,20 @@ run_fixture atlas --sources "$HERE/fixtures/atlas/sources" --atlas "$HERE/fixtur
 run_fixture orphans
 run_fixture no-frontmatter
 
+# --- smoke: run against a real memory dir if one exists ---
+# Asserts shape only. Counts change as memory grows and must never be pinned here.
+REAL="$(ls -d "$HOME"/.claude/projects/*/memory 2>/dev/null | head -1)"
+if [[ -n "$REAL" && -d "$REAL" ]]; then
+  out="$(bash "$PLUGIN/bin/wiki-lint.sh" "$REAL" --sources "$REAL/episodic/weekly" 2>&1)"
+  rc=$?
+  if [[ $rc -eq 0 ]] && grep -q '^## Structural' <<< "$out"; then
+    pass "smoke: real memory dir"
+  else
+    fail "smoke: real memory dir" "rc=$rc
+$out"
+  fi
+else
+  pass "smoke: skipped (no memory dir on this machine)"
+fi
+
 exit "$FAILED"
