@@ -161,6 +161,13 @@ git commit -m "feat(memory-wiki): add plugin skeleton with version-parity test"
 - Create: `plugins/memory-wiki/test/fixtures/clean/wiki/{index.md,log.md,concept_alpha.md,concept_beta.md}`
 - Create: `plugins/memory-wiki/test/expected/clean.txt`
 - Modify: `plugins/memory-wiki/test/run-tests.sh`
+- Modify: `.gitattributes` — pin fixtures to LF so they are byte-stable across clones:
+  ```
+  # Test fixtures are compared byte-for-byte; keep them LF everywhere.
+  plugins/memory-wiki/test/fixtures/** text eol=lf
+  plugins/memory-wiki/test/expected/** text eol=lf
+  ```
+  Belt-and-braces only — `wiki-lint` strips `\r` and must pass on CRLF input regardless.
 
 **Interfaces:**
 - Consumes: `run-tests.sh` from Task 1
@@ -327,7 +334,9 @@ echo ""
 echo "## Injection budget"
 REGION_BYTES=0
 if [[ -f "$WIKI/index.md" ]]; then
-  REGION_BYTES=$(awk '/<!-- BEGIN memory-wiki/{f=1;next} /<!-- END memory-wiki/{f=0} f' "$WIKI/index.md" | wc -c | tr -d ' ')
+  # tr -d '\r' is load-bearing: a memory dir may hold CRLF or LF files, and the
+  # reported budget must not depend on which. The PowerShell twin strips \r too.
+  REGION_BYTES=$(awk '/<!-- BEGIN memory-wiki/{f=1;next} /<!-- END memory-wiki/{f=0} f' "$WIKI/index.md" | tr -d '\r' | wc -c | tr -d ' ')
 fi
 printf '  %-20s : %s B (~%s tokens)\n' "index region" "$REGION_BYTES" "$((REGION_BYTES * 10 / 36))"
 ```
@@ -339,7 +348,11 @@ Make it executable: `chmod +x plugins/memory-wiki/bin/wiki-lint.sh`
 Run: `bash plugins/memory-wiki/test/run-tests.sh`
 Expected: `PASS: fixture: clean`, exit 0.
 
-If the byte count differs from `62`, the fixture's line endings differ from the plan's. Update `expected/clean.txt` to the actual value from the diff — the number is an artifact of the fixture, and the *contract* being tested is that the extraction is deterministic.
+The count must be exactly `60` on every platform. If it comes out `62`, the `tr -d '\r'` in the
+region extraction is missing or misplaced — **fix the script, not the golden file.** This repo sets
+`core.autocrlf=true` and `.gitattributes` marks `*.md` as `text`, so fixture files carry CRLF in the
+working tree on Windows and LF elsewhere. A linter whose reported budget changes with line endings is
+broken, because a real memory dir can hold either.
 
 - [ ] **Step 5: Commit**
 
