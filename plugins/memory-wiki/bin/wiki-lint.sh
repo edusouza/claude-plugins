@@ -86,17 +86,27 @@ while IFS='|' read -r from to; do
 done < "$TMP/links"
 BROKEN_COUNT=$(grep -c . "$TMP/broken" || true)
 
+# A page is an orphan when nothing outside index.md/log.md links to it.
+sort -u -o "$TMP/inbound" "$TMP/inbound"
+comm -23 "$TMP/pages" "$TMP/inbound" > "$TMP/orphans"
+ORPHAN_COUNT=$(grep -c . "$TMP/orphans" || true)
+
 # --- report ---
 echo "## Structural"
 printf '  %-20s : %s\n' "pages" "$PAGE_COUNT"
 printf '  %-20s : %s\n' "wikilinks" "$LINK_COUNT"
 printf '  %-20s : %s\n' "broken links" "$BROKEN_COUNT"
-printf '  %-20s : %s\n' "orphans" "0"
+printf '  %-20s : %s\n' "orphans" "$ORPHAN_COUNT"
 printf '  %-20s : %s\n' "missing frontmatter" "$NOFM_COUNT"
 
 if [[ "$BROKEN_COUNT" -gt 0 ]]; then
   echo ""; echo "  BROKEN:"
   sort "$TMP/broken" | sed 's/^/    /'
+fi
+
+if [[ "$ORPHAN_COUNT" -gt 0 ]]; then
+  echo ""; echo "  ORPHANS:"
+  sed 's/^/    /' "$TMP/orphans"
 fi
 
 if [[ "$NOFM_COUNT" -gt 0 ]]; then

@@ -45,5 +45,6 @@ run_fixture() {
 run_fixture clean
 run_fixture broken
 run_fixture atlas --sources "$HERE/fixtures/atlas/sources" --atlas "$HERE/fixtures/atlas/atlas"
+run_fixture orphans
 
 exit "$FAILED"
