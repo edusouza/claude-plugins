@@ -35,10 +35,19 @@ for f in "$WIKI"/*.md; do
   base="$(basename "$f" .md)"
   is_structural "$base" || echo "$base" >> "$TMP/pages"
 
-  # frontmatter must be a --- fenced block starting on line 1
+  # Frontmatter must be a --- fenced block starting on line 1 AND carry every
+  # required field. Fields are checked in alphabetical order so the reported list
+  # is sorted without a separate sort step.
   if ! is_structural "$base"; then
     if [[ "$(head -n 1 "$f" | tr -d '\r')" != "---" ]]; then
-      echo "$base" >> "$TMP/nofm"
+      echo "$base (no frontmatter)" >> "$TMP/nofm"
+    else
+      fm="$(awk 'NR==1{next} /^---[[:space:]]*$/{exit} {print}' "$f" | tr -d '\r')"
+      missing=""
+      for field in description last_accessed name status type; do
+        grep -qE "^${field}:" <<< "$fm" || missing="${missing:+$missing, }$field"
+      done
+      [[ -n "$missing" ]] && echo "$base (missing: $missing)" >> "$TMP/nofm"
     fi
   fi
 
