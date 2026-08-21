@@ -78,6 +78,32 @@ else
   fail "paths: _wiki-paths.sh" "wiki_project_dir not defined"
 fi
 
+# --- init: creates the scaffold, and is idempotent ---
+TMPPROJ="$(mktemp -d)"
+( cd "$TMPPROJ" && git init -q . ) >/dev/null 2>&1
+MEMD="$(wiki_project_dir "$TMPPROJ")/memory"
+mkdir -p "$MEMD"
+out1="$(bash "$PLUGIN/bin/wiki-init.sh" "$TMPPROJ" 2>&1)"
+out2="$(bash "$PLUGIN/bin/wiki-init.sh" "$TMPPROJ" 2>&1)"
+if [[ -f "$MEMD/wiki/log.md" && -f "$MEMD/wiki/README.md" && -d "$MEMD/wiki/inbox" ]] \
+   && grep -q 'already initialized' <<< "$out2"; then
+  pass "init: scaffolds and is idempotent"
+else
+  fail "init: scaffolds and is idempotent" "run1: $out1
+run2: $out2"
+fi
+# Refuses to scaffold where claude-memory was never initialized, rather than creating
+# a stray memory dir of its own.
+NOMEM="$(mktemp -d)"
+out3="$(bash "$PLUGIN/bin/wiki-init.sh" "$NOMEM" 2>&1)"; rc3=$?
+if [[ $rc3 -ne 0 ]] && grep -q 'no memory dir' <<< "$out3"; then
+  pass "init: refuses a project with no memory dir"
+else
+  fail "init: refuses a project with no memory dir" "rc=$rc3
+$out3"
+fi
+rm -rf "$TMPPROJ" "$NOMEM" "$(wiki_project_dir "$TMPPROJ")"
+
 # --- PowerShell parity: the .ps1 must match the .sh byte for byte ---
 # The bash script's stdout is the specification; the twin exists so the agent side can
 # invoke the linter without going through an unreliable Bash layer on Windows.
