@@ -54,13 +54,50 @@ sort -u -o "$TMP/pages" "$TMP/pages"
 PAGE_COUNT=$(wc -l < "$TMP/pages" | tr -d ' ')
 NOFM_COUNT=$(sort -u "$TMP/nofm" | grep -c . || true)
 
+# --- resolvable-name sets ---
+: > "$TMP/known"
+cat "$TMP/pages" >> "$TMP/known"
+if [[ -n "$SOURCES" && -d "$SOURCES" ]]; then
+  for f in "$SOURCES"/*.md; do [[ -e "$f" ]] && basename "$f" .md >> "$TMP/known"; done
+fi
+: > "$TMP/known_atlas"
+if [[ -n "$ATLAS" && -d "$ATLAS" ]]; then
+  for f in "$ATLAS"/*.md; do [[ -e "$f" ]] && basename "$f" .md >> "$TMP/known_atlas"; done
+fi
+# index.md and log.md are real files and are legitimate link targets even though they
+# are excluded from the page count.
+for s in index log; do [[ -f "$WIKI/$s.md" ]] && echo "$s" >> "$TMP/known"; done
+sort -u -o "$TMP/known" "$TMP/known"
+sort -u -o "$TMP/known_atlas" "$TMP/known_atlas"
+
+# --- classify every link ---
+: > "$TMP/broken"
+while IFS='|' read -r from to; do
+  [[ -n "$to" ]] || continue
+  if [[ "$to" == atlas/* ]]; then
+    if grep -qxF "${to#atlas/}" "$TMP/known_atlas"; then
+      continue
+    fi
+  elif grep -qxF "$to" "$TMP/known"; then
+    is_structural "$from" || echo "$to" >> "$TMP/inbound"
+    continue
+  fi
+  echo "$from -> [[$to]]" >> "$TMP/broken"
+done < "$TMP/links"
+BROKEN_COUNT=$(grep -c . "$TMP/broken" || true)
+
 # --- report ---
 echo "## Structural"
 printf '  %-20s : %s\n' "pages" "$PAGE_COUNT"
 printf '  %-20s : %s\n' "wikilinks" "$LINK_COUNT"
-printf '  %-20s : %s\n' "broken links" "0"
+printf '  %-20s : %s\n' "broken links" "$BROKEN_COUNT"
 printf '  %-20s : %s\n' "orphans" "0"
 printf '  %-20s : %s\n' "missing frontmatter" "$NOFM_COUNT"
+
+if [[ "$BROKEN_COUNT" -gt 0 ]]; then
+  echo ""; echo "  BROKEN:"
+  sort "$TMP/broken" | sed 's/^/    /'
+fi
 
 if [[ "$NOFM_COUNT" -gt 0 ]]; then
   echo ""; echo "  NO FRONTMATTER:"
