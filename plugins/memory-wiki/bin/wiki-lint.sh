@@ -5,6 +5,11 @@
 # Usage: wiki-lint.sh <WIKI_DIR> [--sources <DIR>] [--atlas <DIR>]
 set -uo pipefail
 
+# Deterministic collation. Without this, `sort` ignores punctuation under some locales
+# and orders "a-b" vs "a_b" differently per machine, which the PowerShell twin (ordinal)
+# would never reproduce. Byte order everywhere.
+export LC_ALL=C
+
 WIKI=""; SOURCES=""; ATLAS=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
