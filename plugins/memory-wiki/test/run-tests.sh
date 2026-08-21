@@ -137,6 +137,19 @@ else
   pass "parity: skipped (pwsh not on PATH)"
 fi
 
+# --- shipped surface: every declared file exists ---
+missing=""
+for p in README.md skills/lint/SKILL.md commands/lint.md commands/init.md \
+         bin/wiki-lint.sh bin/wiki-lint.ps1 bin/wiki-init.sh bin/_wiki-paths.sh \
+         assets/wiki-README.md; do
+  [[ -f "$PLUGIN/$p" ]] || missing="$missing $p"
+done
+if [[ -z "$missing" ]]; then
+  pass "surface: all declared files present"
+else
+  fail "surface: all declared files present" "missing:$missing"
+fi
+
 # --- smoke: run against a real memory dir if one exists ---
 # Asserts shape only. Counts change as memory grows and must never be pinned here.
 REAL="$(ls -d "$HOME"/.claude/projects/*/memory 2>/dev/null | head -1)"
