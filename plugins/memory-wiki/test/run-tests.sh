@@ -48,6 +48,36 @@ run_fixture atlas --sources "$HERE/fixtures/atlas/sources" --atlas "$HERE/fixtur
 run_fixture orphans
 run_fixture no-frontmatter
 
+# --- path helpers ---
+# shellcheck source=/dev/null
+. "$PLUGIN/bin/_wiki-paths.sh" 2>/dev/null
+if declare -f wiki_project_dir >/dev/null 2>&1; then
+  got="$(wiki_project_dir "$REPO")"
+  want="$HOME/.claude/projects/$(printf '%s' "$(cygpath -w "$REPO" 2>/dev/null || printf '%s' "$REPO")" | sed 's#[:\\/]#-#g')"
+  if [[ "$got" == "$want" ]]; then
+    pass "paths: repo root resolves to its project dir"
+  else
+    fail "paths: repo root resolves to its project dir" "got:  $got
+want: $want"
+  fi
+  # The vendored copy must agree with claude-memory's original wherever both exist, or
+  # a project's memory and its wiki would resolve to different directories.
+  CM="$(ls -d "$HOME"/.claude/plugins/cache/*/claude-memory/*/bin/_memory-paths.sh 2>/dev/null | tail -1)"
+  if [[ -n "$CM" && -f "$CM" ]]; then
+    cm_got="$(bash -c '. "$1"; mem_project_dir "$2"' _ "$CM" "$REPO" 2>/dev/null)"
+    if [[ "$got" == "$cm_got" ]]; then
+      pass "paths: agrees with claude-memory's resolver"
+    else
+      fail "paths: agrees with claude-memory's resolver" "memory-wiki: $got
+claude-memory: $cm_got"
+    fi
+  else
+    pass "paths: claude-memory not installed, cross-check skipped"
+  fi
+else
+  fail "paths: _wiki-paths.sh" "wiki_project_dir not defined"
+fi
+
 # --- PowerShell parity: the .ps1 must match the .sh byte for byte ---
 # The bash script's stdout is the specification; the twin exists so the agent side can
 # invoke the linter without going through an unreliable Bash layer on Windows.
